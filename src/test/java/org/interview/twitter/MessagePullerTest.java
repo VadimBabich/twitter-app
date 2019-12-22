@@ -76,7 +76,7 @@ public class MessagePullerTest {
         underTest.getTweetsBy("bieber", s -> {
             try {
 
-                Thread.sleep(1_000);
+                Thread.sleep(700);
                 count.incrementAndGet();
             } catch (InterruptedException ignore) {
             }
