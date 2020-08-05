@@ -1,7 +1,7 @@
 
 # Twitter message collector #
 
-This development test is used as part of selection for Java developers. You are requested to develop a simple application that covers all the requirements listed below. To have an indication of the criteria that will be used to judge your submission, all the following are considered as metrics of good development:
+Requested to develop a simple application that covers all the requirements listed below. To have an indication of the criteria that will be used to judge your submission, all the following are considered as metrics of good development:
 
 + Correctness of the implementation
 + Decent test coverage
