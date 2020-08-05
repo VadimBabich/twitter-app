@@ -51,10 +51,6 @@ You will need to provide your _Consumer Key_ and _Consumer Secret_ and follow th
 With the resulting factory you are able to generate and execute all necessary requests.
 If you want to, you can also disregard the provided classes or Maven configuration and create your own application from scratch.
 
-## Delivery ##
-
-You are assigned to you own private repository. Please use your own branch and do not commit on master.
-When the assignment is finished, please create a pull request on the master of this repository, and your contact person will be notified automatically. 
 
 ## Getting Start
 
