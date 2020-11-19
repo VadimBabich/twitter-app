@@ -3,6 +3,7 @@ package org.interview.twitter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.text.SimpleDateFormat;
 import java.util.function.Function;
 
@@ -26,7 +27,7 @@ public class MessageConverter implements Function<String, Message> {
         try {
             return objectMapper.readValue(tweetLine, Message.class);
         } catch (IOException e) {
-            throw new RuntimeException("Error when parsing the message: ", e.getCause());
+            throw new UncheckedIOException("Error when parsing the message: ", e);
         }
     }
 }

@@ -8,8 +8,8 @@ import com.google.api.client.http.HttpResponse;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.UncheckedIOException;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -28,8 +28,10 @@ public class MessagePuller {
 
     public MessagePuller(HttpRequestFactory requestFactory, int limit, int maxPollingDurationSec) {
 
-        assert limit > 0;
-        assert maxPollingDurationSec > 0;
+        if(limit <= 0 || 0 >= maxPollingDurationSec) {
+            throw new IllegalArgumentException(String.format("limit {%d} and maxPollingDurationSec {%d} "
+                    + "must be greater than 0", limit, maxPollingDurationSec));
+        }
 
         this.requestFactory = requestFactory;
         this.limit = limit;
@@ -47,14 +49,17 @@ public class MessagePuller {
 
             response = request.execute();
 
-            LineNumberReader reader = new LineNumberReader(new InputStreamReader(response.getContent()));
+            try(LineNumberReader reader = new LineNumberReader(new InputStreamReader(response.getContent()))) {
 
-            pull(tweetConsumer, reader);
+                pull(tweetConsumer, reader);
 
-            return reader.getLineNumber();
+                return reader.getLineNumber();
+            }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving messages from twitter:", e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ExecutionException e){
+            throw new MessageRetrievingException("Error retrieving messages from twitter:", e.getCause());
         } finally {
 
             if (null != response) {
@@ -66,13 +71,11 @@ public class MessagePuller {
         }
     }
 
-    private void pull(Consumer<String> tweetsConsumer, LineNumberReader reader) {
-
-        AtomicReference<Exception> exceptionHolder = new AtomicReference<>();
+    private void pull(Consumer<String> tweetsConsumer, LineNumberReader reader) throws ExecutionException {
 
         Future<?> handler = executor.submit(() -> {
             try {
-                for (; reader.getLineNumber() < limit; ) {
+                while (reader.getLineNumber() < limit) {
 
                     String line;
                     if (null == (line = reader.readLine())) {
@@ -81,21 +84,19 @@ public class MessagePuller {
 
                     tweetsConsumer.accept(line);
                 }
-            } catch (Exception e) {
-                exceptionHolder.set(e);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         });
 
         try {
             handler.get(maxPollingDuration, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException e ) {
+            Thread.currentThread().interrupt();
+            throw new CancellationException(e.getMessage());
         } catch (TimeoutException ignore) {
         }
 
-        if (null != exceptionHolder.get()) {
-            throw new RuntimeException(exceptionHolder.get());
-        }
     }
 
     private static GenericUrl getGenericUrl(String tag) {
@@ -105,4 +106,10 @@ public class MessagePuller {
         return new GenericUrl(requestLine);
     }
 
+    public static class MessageRetrievingException extends RuntimeException{
+
+        public MessageRetrievingException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

@@ -16,6 +16,9 @@ import java.util.function.Consumer;
  */
 public class PrintHelper {
 
+    private PrintHelper() {
+    }
+
     public static void prettyPrint(PrintStream printStream, Map<Author, List<Message>> messages) {
 
 
@@ -29,7 +32,8 @@ public class PrintHelper {
         });
     }
 
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private static final ThreadLocal<SimpleDateFormat> dateFormat =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"));
 
     static void printAuthor(PrintStream printStream, Author author) {
 
@@ -39,14 +43,14 @@ public class PrintHelper {
             printStream.print(author.getId());
 
             printStream.print(" created:");
-            printStream.print(dateFormat.format(author.getDate()));
+            printStream.print(dateFormat.get().format(author.getDate()));
     }
 
     static Consumer<Message> printMessage(PrintStream printStream) {
 
-        return (message) -> {
+        return message -> {
             printStream.print("\n\t");
-            printStream.print(dateFormat.format(message.getDate()));
+            printStream.print(dateFormat.get().format(message.getDate()));
 
             printStream.print(" text:");
             printStream.print(message.getText().replace("\n", ""));

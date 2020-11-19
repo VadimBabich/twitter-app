@@ -25,7 +25,6 @@ import com.google.api.client.auth.oauth.OAuthParameters;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import org.interview.twitter.oauth.TwitterAuthenticationException;
 
 /**
  * Provide access to the Twitter API by implementing the required OAuth flow
@@ -133,13 +132,11 @@ public class TwitterAuthenticator {
      */
     private String retrievePin(final OAuthAuthorizeTemporaryTokenUrl authorizeUrl) throws TwitterAuthenticationException {
         String providedPin;
-        Scanner scanner = new Scanner(System.in);
-        try {
+
+        try (Scanner scanner = new Scanner(System.in)){
             out.println("Go to the following link in your browser:\n" + authorizeUrl.build());
             out.println("\nPlease enter the retrieved PIN:");
             providedPin = scanner.nextLine();
-        } finally {
-            scanner.close();
         }
 
         if (providedPin == null) {

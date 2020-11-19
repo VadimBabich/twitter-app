@@ -32,7 +32,9 @@ public class Author {
             , @JsonProperty("created_at") Date date
             , @JsonProperty("name") String name
             , @JsonProperty("screen_name") String screenName) {
-        assert null != id;
+        if(null == id){
+            throw new IllegalArgumentException("id cannot be null.");
+        }
 
         this.id = id;
         this.date = date;

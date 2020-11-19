@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 public class MessageCollectors {
 
+    private MessageCollectors() {
+    }
+
     /**
      * Collect messages grouped by author and sorted in chronological order.
      *
@@ -28,9 +31,11 @@ public class MessageCollectors {
                 , sortAndCollectMessageForAuthor);
     }
 
-    static public Collector<Message, List<Message>, List<Message>> messagesSortBy(Comparator<Message> messageComparator) {
+    public static Collector<Message, List<Message>, List<Message>> messagesSortBy(Comparator<Message> messageComparator) {
 
-        assert null != messageComparator;
+        if(null == messageComparator){
+            throw new IllegalArgumentException("messageComparator cannot be null.");
+        }
 
         return new Collector<Message, List<Message>, List<Message>>() {
 
@@ -70,6 +75,9 @@ public class MessageCollectors {
 
 
     public static class Comparators {
+
+        private Comparators() {
+        }
 
         /**
          * Message date comparator in chronological order

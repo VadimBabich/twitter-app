@@ -1,10 +1,16 @@
 package org.interview.twitter;
 
 
+import static org.mockito.Matchers.any;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,13 +21,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
-import static org.mockito.Matchers.any;
 
 /**
  * Testing limits of puller (duration and count)
@@ -62,7 +61,7 @@ public class MessagePullerTest {
     }
 
     @Test
-    public void getTweetsByCountLimitTest() {
+    public void shouldOnlyLimitedNumberMessagesHaveBeenReceived_getTweetsBy() {
         AtomicInteger count = new AtomicInteger(0);
         underTest.getTweetsBy("bieber", s -> count.incrementAndGet());
 
@@ -70,7 +69,7 @@ public class MessagePullerTest {
     }
 
     @Test
-    public void getTweetsByDurationLimitTest() {
+    public void shouldOnlyOneMessageReceivedInPollingPeriod_getTweetsBy() {
 
         AtomicInteger count = new AtomicInteger(0);
         underTest.getTweetsBy("bieber", s -> {
@@ -86,7 +85,7 @@ public class MessagePullerTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void getTweetsByExceptionTest() {
+    public void shouldExceptionOfPullerThreadReachOutToMainThread_getTweetsBy() {
 
         underTest.getTweetsBy("bieber", s -> {
             throw new RuntimeException("test");

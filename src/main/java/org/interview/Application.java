@@ -170,6 +170,7 @@ public class Application {
             try {
                 Thread.sleep(400);
             } catch (InterruptedException ignore) {
+                Thread.currentThread().interrupt();
             }
             printStream.println("\nShutting down ...");
         }));

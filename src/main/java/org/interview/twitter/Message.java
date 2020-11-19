@@ -32,7 +32,9 @@ public class Message {
             , @JsonProperty("created_at") Date date
             , @JsonProperty("text") String text
             , @JsonProperty("user") Author author) {
-        assert null != id;
+        if(null == id){
+            throw new IllegalArgumentException("id cannot be null.");
+        }
 
         this.id = id;
         this.date = date;
